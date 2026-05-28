@@ -1,0 +1,558 @@
+index.html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>🇮🇳→🇦🇹 Austria Travel Checklist</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body {
+    min-height: 100vh;
+    background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+    font-family: Georgia, 'Times New Roman', serif;
+    color: #f0f0f0;
+    padding-bottom: 80px;
+  }
+  /* HEADER */
+  #header {
+    background: rgba(255,255,255,0.05);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 18px 16px 14px;
+    text-align: center;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  #header .subtitle { font-size: 11px; letter-spacing: 4px; color: #f4a261; text-transform: uppercase; margin-bottom: 5px; }
+  #header h1 { font-size: 20px; font-weight: bold; letter-spacing: 1px; }
+  .progress-row { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 12px; }
+  .progress-item { text-align: center; }
+  .progress-label { font-size: 10px; color: #aaa; margin-bottom: 3px; }
+  .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 20px; height: 7px; width: 100px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; border-radius: 20px; transition: width 0.4s ease; }
+  .progress-count { font-size: 11px; margin-top: 2px; }
+
+  /* CONTROLS */
+  #controls { padding: 14px 14px 6px; max-width: 700px; margin: 0 auto; }
+  #searchInput {
+    width: 100%; padding: 10px 14px; border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.15);
+    background: rgba(255,255,255,0.07); color: #fff; font-size: 14px; outline: none;
+  }
+  #searchInput::placeholder { color: #888; }
+  .filter-row { display: flex; gap: 7px; margin-top: 10px; flex-wrap: wrap; }
+  .filter-btn {
+    padding: 5px 13px; border-radius: 20px; border: none; cursor: pointer;
+    font-size: 12px; background: rgba(255,255,255,0.1); color: #fff; transition: all 0.2s;
+  }
+  .filter-btn.active { background: #f4a261; color: #000; font-weight: bold; }
+  .cat-row { display: flex; gap: 7px; overflow-x: auto; margin-top: 10px; padding-bottom: 4px; scrollbar-width: none; }
+  .cat-row::-webkit-scrollbar { display: none; }
+  .cat-btn {
+    white-space: nowrap; padding: 5px 12px; border-radius: 20px; border: none;
+    cursor: pointer; font-size: 12px; background: rgba(255,255,255,0.1);
+    color: #fff; transition: all 0.2s;
+  }
+  .cat-btn.active { color: #000; font-weight: bold; }
+
+  /* LIST */
+  #listContainer { max-width: 700px; margin: 0 auto; padding: 10px 14px 0; }
+  .category-block { margin-bottom: 22px; }
+  .cat-header {
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 2px solid #ccc; padding-bottom: 7px; margin-bottom: 8px;
+  }
+  .cat-title { font-size: 15px; font-weight: bold; }
+  .cat-badge {
+    border-radius: 20px; padding: 1px 10px; font-size: 11px; font-weight: bold; color: #000;
+  }
+  .col-headers {
+    display: grid; grid-template-columns: 1fr 72px 72px 32px;
+    gap: 6px; padding: 3px 10px; font-size: 10px; color: #888;
+    text-transform: uppercase; letter-spacing: 1px;
+  }
+  .col-headers span:nth-child(2), .col-headers span:nth-child(3) { text-align: center; }
+  .item-row {
+    display: grid; grid-template-columns: 1fr 72px 72px 32px;
+    gap: 6px; align-items: center; padding: 8px 10px;
+    border-radius: 10px; margin-bottom: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    transition: all 0.2s;
+  }
+  .item-row.done {
+    background: rgba(6,214,160,0.08);
+    border-color: rgba(6,214,160,0.3);
+  }
+  .item-name { font-size: 13px; color: #eee; line-height: 1.3; }
+  .item-row.done .item-name { text-decoration: line-through; color: #888; }
+  .check-cell { display: flex; justify-content: center; }
+  .chk {
+    width: 28px; height: 28px; border-radius: 6px; border: 2px solid rgba(255,255,255,0.3);
+    background: transparent; cursor: pointer; font-size: 14px; color: #000;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.15s; flex-shrink: 0;
+  }
+  .del-btn {
+    width: 28px; height: 28px; border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.1); background: transparent;
+    cursor: pointer; color: #888; font-size: 16px;
+    display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+  }
+  .del-btn:hover { color: #e63946; border-color: #e63946; }
+  #emptyMsg { text-align: center; color: #888; padding: 40px 0; display: none; }
+
+  /* FAB */
+  #fab-container { position: fixed; bottom: 20px; right: 16px; z-index: 200; }
+  #fabBtn {
+    width: 52px; height: 52px; border-radius: 50%; background: #f4a261; border: none;
+    color: #000; font-size: 26px; cursor: pointer;
+    box-shadow: 0 4px 20px rgba(244,162,97,0.5);
+    display: flex; align-items: center; justify-content: center; transition: transform 0.2s;
+  }
+  #fabBtn:active { transform: scale(0.92); }
+  #addForm {
+    display: none; background: #1a1a2e; border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 16px; padding: 14px; width: 270px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+  }
+  #addForm.open { display: block; }
+  #addForm .form-title { font-size: 13px; font-weight: bold; margin-bottom: 10px; }
+  #newItemName, #newItemCat {
+    width: 100%; padding: 8px 10px; border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.07); color: #fff; font-size: 13px;
+    margin-bottom: 8px; outline: none;
+  }
+  #newItemCat { background: #1a1a2e; }
+  #newItemCat option { background: #1a1a2e; }
+  .form-btns { display: flex; gap: 8px; }
+  #addConfirm {
+    flex: 1; padding: 8px; border-radius: 8px; border: none;
+    background: #f4a261; color: #000; font-weight: bold; cursor: pointer; font-size: 13px;
+  }
+  #addConfirm:disabled { opacity: 0.4; cursor: default; }
+  #addCancel {
+    padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2);
+    background: transparent; color: #fff; cursor: pointer; font-size: 13px;
+  }
+  @media (max-width: 400px) {
+    #header h1 { font-size: 17px; }
+    .item-name { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div id="header">
+  <div class="subtitle">🇮🇳 India → Austria 🇦🇹 Student Travel</div>
+  <h1>Austria Packing Checklist</h1>
+  <div class="progress-row">
+    <div class="progress-item">
+      <div class="progress-label">Purchased</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar-purchased" style="background:#f4a261;width:0%"></div></div>
+      <div class="progress-count" id="count-purchased" style="color:#f4a261">0/0</div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label">Packed</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar-packed" style="background:#2a9d8f;width:0%"></div></div>
+      <div class="progress-count" id="count-packed" style="color:#2a9d8f">0/0</div>
+    </div>
+    <div class="progress-item">
+      <div class="progress-label">✅ Done</div>
+      <div class="progress-bar-wrap"><div class="progress-bar-fill" id="bar-done" style="background:#06d6a0;width:0%"></div></div>
+      <div class="progress-count" id="count-done" style="color:#06d6a0">0/0</div>
+    </div>
+  </div>
+</div>
+
+<!-- CONTROLS -->
+<div id="controls">
+  <input type="text" id="searchInput" placeholder="🔍 Search items..." oninput="render()">
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All Items</button>
+    <button class="filter-btn" onclick="setFilter('pending',this)">⏳ Pending</button>
+    <button class="filter-btn" onclick="setFilter('done',this)">✅ Done</button>
+  </div>
+  <div class="cat-row" id="catRow"></div>
+</div>
+
+<!-- LIST -->
+<div id="listContainer">
+  <div id="emptyMsg">No items found. Try a different search or filter.</div>
+</div>
+
+<!-- FAB -->
+<div id="fab-container">
+  <div id="addForm">
+    <div class="form-title">➕ Add New Item</div>
+    <input type="text" id="newItemName" placeholder="Item name..." oninput="checkAddBtn()">
+    <select id="newItemCat" onchange="checkAddBtn()">
+      <option value="">Select category...</option>
+    </select>
+    <div class="form-btns">
+      <button id="addConfirm" disabled onclick="addItem()">Add</button>
+      <button id="addCancel" onclick="closeForm()">Cancel</button>
+    </div>
+  </div>
+  <button id="fabBtn" onclick="toggleForm()">+</button>
+</div>
+
+<script>
+const DEFAULT_DATA = [
+  { id:"documents", name:"📄 Documents & Certificates", color:"#e63946", items:[
+    {id:"d1",name:"Passport + Visa (1-2 xerox copies)"},{id:"d2",name:"Admit Letter / University acceptance letter"},
+    {id:"d3",name:"Travel Insurance"},{id:"d4",name:"Air Ticket (printout)"},
+    {id:"d5",name:"Accommodation Contract copy"},{id:"d6",name:"Bus/Train/Shuttle Travel Reservation copy"},
+    {id:"d7",name:"Photo (same as given for visa) – multiple copies"},{id:"d8",name:"Cash / Card – min 500–1000 Euro"},
+    {id:"d9",name:"Important phone numbers & bank A/C numbers (written down)"},{id:"d10",name:"Copies of all documents left at home"},
+    {id:"d11",name:"Health/Medical insurance card"},{id:"d12",name:"Academic certificates & transcripts"}
+  ]},
+  { id:"food", name:"🍛 Food & Groceries", color:"#f4a261", items:[
+    {id:"f1",name:"Masala podi – all varieties"},{id:"f2",name:"Maggie Noodles – all"},
+    {id:"f3",name:"Spaghetti and pasta"},{id:"f4",name:"Oats"},
+    {id:"f5",name:"Neychar rice"},{id:"f6",name:"Sugar"},{id:"f7",name:"Salt"},
+    {id:"f8",name:"Ghee"},{id:"f9",name:"Oil"},{id:"f10",name:"Coffee powder / Tea powder"},
+    {id:"f11",name:"Pickle"},{id:"f12",name:"Peanut butter / Jam"},
+    {id:"f13",name:"Ginger garlic paste"},{id:"f14",name:"Red dry chilli"},
+    {id:"f15",name:"Chick powder – all other powders"},{id:"f16",name:"Lays / chips – if needed"},
+    {id:"f17",name:"Dal (lentils)"},{id:"f18",name:"Ready-to-eat packets (MTR, etc.)"}
+  ]},
+  { id:"clothing", name:"👗 Clothing & Linen", color:"#2a9d8f", items:[
+    {id:"cl1",name:"Tops"},{id:"cl2",name:"Jeans"},{id:"cl3",name:"Frock / Gown"},
+    {id:"cl4",name:"Thermal – 2 sets"},{id:"cl5",name:"Tank tops and inner wear"},
+    {id:"cl6",name:"Jacket"},{id:"cl7",name:"Gloves – Normal and Winter"},
+    {id:"cl8",name:"Pullovers"},{id:"cl9",name:"Scarfs"},{id:"cl10",name:"Hat"},
+    {id:"cl11",name:"Sweater"},{id:"cl12",name:"Sweatshirts"},
+    {id:"cl13",name:"Socks – Winter as well"},{id:"cl14",name:"Belt"},
+    {id:"cl15",name:"Night dress"},{id:"cl16",name:"Inner garments"},
+    {id:"cl17",name:"Tie"},{id:"cl18",name:"Formal wear"},{id:"cl19",name:"Traditional wear"},
+    {id:"cl20",name:"Pillow cover"},{id:"cl21",name:"Bedsheet"},
+    {id:"cl22",name:"Towel and small towels"},{id:"cl23",name:"Floor mat / Bathroom mat"}
+  ]},
+  { id:"bags_shoes", name:"👜 Bags & Shoes", color:"#457b9d", items:[
+    {id:"bs1",name:"23 kg – Check-in bag"},{id:"bs2",name:"7 kg – Cabin bag"},
+    {id:"bs3",name:"Handbag"},{id:"bs4",name:"Side bag"},{id:"bs5",name:"Tote bag × 3"},
+    {id:"bs6",name:"Shoes – 1 new pair"},{id:"bs7",name:"Chappel – good (outdoor)"},
+    {id:"bs8",name:"Chappel – for inner use"},{id:"bs9",name:"Winter boots"}
+  ]},
+  { id:"personal", name:"💄 Personal & Beauty", color:"#c77dff", items:[
+    {id:"p1",name:"Earring"},{id:"p2",name:"Necklace"},{id:"p3",name:"Ring"},
+    {id:"p4",name:"Lipbalm"},{id:"p5",name:"Lipstick"},{id:"p6",name:"Cheek tint"},
+    {id:"p7",name:"Nail cutter"},{id:"p8",name:"Nail shaper"},{id:"p9",name:"Shaving razor"},
+    {id:"p10",name:"Toothbrush + paste"},{id:"p11",name:"Extra cosmetics"},
+    {id:"p12",name:"Photo of god"},{id:"p13",name:"Small lamp (diya)"},{id:"p14",name:"Kumkum"}
+  ]},
+  { id:"medicine", name:"💊 Medicines & Products", color:"#06d6a0", items:[
+    {id:"m1",name:"Dolo (paracetamol)"},{id:"m2",name:"Steamer"},{id:"m3",name:"Cough syrup"},
+    {id:"m4",name:"Vicks / Tiger Balm"},{id:"m5",name:"Inhaler"},{id:"m6",name:"Other medicines"},
+    {id:"m7",name:"Sunscreen"},{id:"m8",name:"Moisturiser"},{id:"m9",name:"Cold cream"},
+    {id:"m10",name:"Ear buds"},{id:"m11",name:"Diapers / pads (sanitary)"},
+    {id:"m12",name:"Shower gel"},{id:"m13",name:"Shampoo and conditioner"},
+    {id:"m14",name:"Band aid"},{id:"m15",name:"Betadine"},
+    {id:"m16",name:"Specs / contact lenses + solution"},
+    {id:"m17",name:"Pain relief spray / ointment"},{id:"m18",name:"Antacids / digestive tablets"}
+  ]},
+  { id:"cooking", name:"🍳 Cooking Items", color:"#fb8500", items:[
+    {id:"ck1",name:"Knife"},{id:"ck2",name:"Peeler"},{id:"ck3",name:"Spoon and fork"},
+    {id:"ck4",name:"Plates × 2"},{id:"ck5",name:"Tiffin box"},{id:"ck6",name:"Flask"},
+    {id:"ck7",name:"Tea flask"},{id:"ck8",name:"Water bottle"},{id:"ck9",name:"Boil paper (parchment)"},
+    {id:"ck10",name:"Glass × 2"},{id:"ck11",name:"Tava × 2"},{id:"ck12",name:"Pan cum pot"},
+    {id:"ck13",name:"Cooker × 1"},{id:"ck14",name:"Blender × 1"},
+    {id:"ck15",name:"Rice cooker × 1"},{id:"ck16",name:"Cutting board"},
+    {id:"ck17",name:"Dishwasher soap with sponge"}
+  ]},
+  { id:"gadgets", name:"💻 Gadgets & Electronics", color:"#4cc9f0", items:[
+    {id:"g1",name:"Universal Adapter (Type F for Austria)"},{id:"g2",name:"Laptop"},
+    {id:"g3",name:"Batteries"},{id:"g4",name:"Pen drives"},{id:"g5",name:"Power bank"},
+    {id:"g6",name:"Earpods / Headphones"},{id:"g7",name:"Extension board"},
+    {id:"g8",name:"Charger protector"},{id:"g9",name:"Phone – extra / backup"},
+    {id:"g10",name:"Mouse and keyboard"},{id:"g11",name:"Mobile phone case / screen protector"},
+    {id:"g12",name:"Iron box / Steam iron"},{id:"g13",name:"Extra cables (USB, charging)"},
+    {id:"g14",name:"Laptop bag / sleeve"}
+  ]},
+  { id:"stationery", name:"✏️ Stationery", color:"#ffb703", items:[
+    {id:"s1",name:"Calculator – Normal and Scientific"},{id:"s2",name:"Pencil pouch, geometry box"},
+    {id:"s3",name:"Fevistick / Gum"},{id:"s4",name:"Lamp – small"},{id:"s5",name:"Torch – small"},
+    {id:"s6",name:"Book × 2, Note pad"},{id:"s7",name:"Pencil, Pen, Rubber, Sharpener"},
+    {id:"s8",name:"Scale, Marker, Highlighter"},{id:"s9",name:"Stick pad / Post-its"},
+    {id:"s10",name:"Rubber band"},{id:"s11",name:"Glue stick"},{id:"s12",name:"Paper clip"},
+    {id:"s13",name:"Wall sticking hooks"},{id:"s14",name:"Hooks & keychain"},
+    {id:"s15",name:"Needle and threads"},{id:"s16",name:"Button"},{id:"s17",name:"Scissors"},
+    {id:"s18",name:"Cellotape / double tape"},{id:"s19",name:"Whitener"},{id:"s20",name:"Punches"}
+  ]},
+  { id:"misc", name:"🎒 Miscellaneous", color:"#a8dadc", items:[
+    {id:"mi1",name:"Stapler and pins"},{id:"mi2",name:"Passport holder"},
+    {id:"mi3",name:"Vacuum compression storage bags"},{id:"mi4",name:"Travel organizer / packing cubes"},
+    {id:"mi5",name:"Umbrella"},{id:"mi6",name:"Compact (comb / mirror)"},
+    {id:"mi7",name:"Indian SIM (deactivated) + Austria SIM research"},
+    {id:"mi8",name:"Small lock for luggage"},{id:"mi9",name:"Reusable shopping bags"},
+    {id:"mi10",name:"Zip-lock bags (various sizes)"}
+  ]}
+];
+
+// State
+let categories = [];
+let activeCategory = 'all';
+let activeFilter = 'all';
+let stateMap = {}; // {itemId: {purchased, packed}}
+
+function loadData() {
+  try {
+    const saved = localStorage.getItem('austria_checklist_v2');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      categories = parsed.categories;
+      stateMap = parsed.stateMap || {};
+    } else {
+      resetToDefault();
+    }
+  } catch(e) { resetToDefault(); }
+}
+
+function resetToDefault() {
+  categories = JSON.parse(JSON.stringify(DEFAULT_DATA)).map(cat => ({
+    ...cat,
+    items: cat.items.map(i => ({ id: i.id, name: i.name }))
+  }));
+  stateMap = {};
+}
+
+function saveData() {
+  localStorage.setItem('austria_checklist_v2', JSON.stringify({ categories, stateMap }));
+}
+
+function getState(id) {
+  return stateMap[id] || { purchased: false, packed: false };
+}
+
+function toggle(itemId, field) {
+  if (!stateMap[itemId]) stateMap[itemId] = { purchased: false, packed: false };
+  stateMap[itemId][field] = !stateMap[itemId][field];
+  saveData();
+  render();
+}
+
+function deleteItem(catId, itemId) {
+  const cat = categories.find(c => c.id === catId);
+  if (!cat) return;
+  cat.items = cat.items.filter(i => i.id !== itemId);
+  delete stateMap[itemId];
+  saveData();
+  render();
+}
+
+function addItem() {
+  const name = document.getElementById('newItemName').value.trim();
+  const catId = document.getElementById('newItemCat').value;
+  if (!name || !catId) return;
+  const cat = categories.find(c => c.id === catId);
+  if (!cat) return;
+  const newId = 'custom_' + Date.now();
+  cat.items.push({ id: newId, name });
+  saveData();
+  closeForm();
+  render();
+}
+
+function setFilter(f, btn) {
+  activeFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  render();
+}
+
+function setCat(catId) {
+  activeCategory = catId;
+  render();
+}
+
+function toggleForm() {
+  const form = document.getElementById('addForm');
+  const fab = document.getElementById('fabBtn');
+  if (form.classList.contains('open')) {
+    closeForm();
+  } else {
+    form.classList.add('open');
+    fab.style.display = 'none';
+    populateCatSelect();
+    document.getElementById('newItemName').focus();
+  }
+}
+
+function closeForm() {
+  document.getElementById('addForm').classList.remove('open');
+  document.getElementById('fabBtn').style.display = 'flex';
+  document.getElementById('newItemName').value = '';
+  document.getElementById('newItemCat').value = '';
+  document.getElementById('addConfirm').disabled = true;
+}
+
+function checkAddBtn() {
+  const name = document.getElementById('newItemName').value.trim();
+  const cat = document.getElementById('newItemCat').value;
+  document.getElementById('addConfirm').disabled = !(name && cat);
+}
+
+function populateCatSelect() {
+  const sel = document.getElementById('newItemCat');
+  sel.innerHTML = '<option value="">Select category...</option>';
+  categories.forEach(cat => {
+    const opt = document.createElement('option');
+    opt.value = cat.id;
+    opt.textContent = cat.name;
+    sel.appendChild(opt);
+  });
+}
+
+function buildCatNav() {
+  const row = document.getElementById('catRow');
+  row.innerHTML = '';
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cat-btn' + (activeCategory === 'all' ? ' active' : '');
+  allBtn.textContent = 'All';
+  if (activeCategory === 'all') allBtn.style.background = '#fff';
+  allBtn.onclick = () => setCat('all');
+  row.appendChild(allBtn);
+
+  categories.forEach(cat => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn' + (activeCategory === cat.id ? ' active' : '');
+    if (activeCategory === cat.id) btn.style.background = cat.color;
+    btn.textContent = cat.name.split(' ').slice(0,2).join(' ');
+    btn.onclick = () => setCat(cat.id);
+    row.appendChild(btn);
+  });
+}
+
+function render() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  buildCatNav();
+
+  // Compute totals
+  const allItems = categories.flatMap(c => c.items);
+  const total = allItems.length;
+  const pCount = allItems.filter(i => getState(i.id).purchased).length;
+  const pkCount = allItems.filter(i => getState(i.id).packed).length;
+  const dCount = allItems.filter(i => getState(i.id).purchased && getState(i.id).packed).length;
+
+  document.getElementById('bar-purchased').style.width = total ? (pCount/total*100)+'%' : '0%';
+  document.getElementById('bar-packed').style.width = total ? (pkCount/total*100)+'%' : '0%';
+  document.getElementById('bar-done').style.width = total ? (dCount/total*100)+'%' : '0%';
+  document.getElementById('count-purchased').textContent = pCount+'/'+total;
+  document.getElementById('count-packed').textContent = pkCount+'/'+total;
+  document.getElementById('count-done').textContent = dCount+'/'+total;
+
+  const container = document.getElementById('listContainer');
+  // Keep emptyMsg
+  const emptyMsg = document.getElementById('emptyMsg');
+  container.innerHTML = '';
+  container.appendChild(emptyMsg);
+
+  let anyVisible = false;
+
+  categories.forEach(cat => {
+    if (activeCategory !== 'all' && activeCategory !== cat.id) return;
+
+    const filteredItems = cat.items.filter(item => {
+      const state = getState(item.id);
+      const isDone = state.purchased && state.packed;
+      const matchSearch = item.name.toLowerCase().includes(search);
+      const matchFilter =
+        activeFilter === 'all' ||
+        (activeFilter === 'pending' && (!state.purchased || !state.packed)) ||
+        (activeFilter === 'done' && isDone);
+      return matchSearch && matchFilter;
+    });
+
+    if (!filteredItems.length) return;
+    anyVisible = true;
+
+    const catDone = filteredItems.filter(i => { const s=getState(i.id); return s.purchased&&s.packed; }).length;
+
+    const block = document.createElement('div');
+    block.className = 'category-block';
+
+    // Header
+    const hdr = document.createElement('div');
+    hdr.className = 'cat-header';
+    hdr.style.borderBottomColor = cat.color;
+    hdr.innerHTML = `<span class="cat-title">${cat.name}</span>
+      <span class="cat-badge" style="background:${cat.color}">${catDone}/${filteredItems.length}</span>`;
+    block.appendChild(hdr);
+
+    // Col headers
+    const cols = document.createElement('div');
+    cols.className = 'col-headers';
+    cols.innerHTML = '<span>Item</span><span>Purchased</span><span>Packed</span><span></span>';
+    block.appendChild(cols);
+
+    filteredItems.forEach(item => {
+      const state = getState(item.id);
+      const isDone = state.purchased && state.packed;
+
+      const row = document.createElement('div');
+      row.className = 'item-row' + (isDone ? ' done' : '');
+
+      // Name
+      const nameEl = document.createElement('span');
+      nameEl.className = 'item-name';
+      nameEl.textContent = (isDone ? '✓ ' : '') + item.name;
+      row.appendChild(nameEl);
+
+      // Purchased btn
+      const pCell = document.createElement('div');
+      pCell.className = 'check-cell';
+      const pBtn = document.createElement('button');
+      pBtn.className = 'chk';
+      pBtn.style.border = `2px solid ${state.purchased ? '#f4a261' : 'rgba(255,255,255,0.3)'}`;
+      pBtn.style.background = state.purchased ? '#f4a261' : 'transparent';
+      pBtn.textContent = state.purchased ? '✓' : '';
+      pBtn.onclick = () => toggle(item.id, 'purchased');
+      pCell.appendChild(pBtn);
+      row.appendChild(pCell);
+
+      // Packed btn
+      const pkCell = document.createElement('div');
+      pkCell.className = 'check-cell';
+      const pkBtn = document.createElement('button');
+      pkBtn.className = 'chk';
+      pkBtn.style.border = `2px solid ${state.packed ? '#2a9d8f' : 'rgba(255,255,255,0.3)'}`;
+      pkBtn.style.background = state.packed ? '#2a9d8f' : 'transparent';
+      pkBtn.style.color = '#fff';
+      pkBtn.textContent = state.packed ? '✓' : '';
+      pkBtn.onclick = () => toggle(item.id, 'packed');
+      pkCell.appendChild(pkBtn);
+      row.appendChild(pkCell);
+
+      // Delete
+      const delBtn = document.createElement('button');
+      delBtn.className = 'del-btn';
+      delBtn.textContent = '×';
+      delBtn.title = 'Remove item';
+      delBtn.onclick = () => deleteItem(cat.id, item.id);
+      row.appendChild(delBtn);
+
+      block.appendChild(row);
+    });
+
+    container.appendChild(block);
+  });
+
+  emptyMsg.style.display = anyVisible ? 'none' : 'block';
+}
+
+// Init
+loadData();
+render();
+
+// Enter key in add form
+document.getElementById('newItemName').addEventListener('keydown', e => {
+  if (e.key === 'Enter') addItem();
+});
+</script>
+</body>
+</html>
